@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Green River — A Modern Azure Reconstruction (DP-900 Case Study)</title>
+<title>Project Green River — A Modern Azure Reconstruction (Azure Data Analytics Case Study)</title>
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --panel-2:#1c2330; --ink:#e6edf3; --muted:#9aa7b4;
@@ -185,14 +185,14 @@
 
 <header class="hero">
   <div class="wrap">
-    <p class="kicker">DP-900 Field Project · Data Fundamentals Case Study</p>
+    <p class="kicker">Azure Field Project · Data Fundamentals Case Study</p>
     <h1>Project Green River
       <span class="thin">How modern data analytics could save lives in cold-case investigations — the Green River Killer, rebuilt as an Azure data platform.</span>
     </h1>
-    <p class="lede">Gary Ridgway murdered at least 49 women across Washington and stayed free for nearly twenty years. He was not invisible. A victim's boyfriend wrote down his license plate and led police to his front door in <em>1983</em>. The signals existed in the evidence. The problem was that the evidence was paper, scattered across agencies, and impossible to query. This is the case rebuilt as a modern Azure data platform, evidence type by evidence type, with the DP-900 exam concept attached to each one.</p>
+    <p class="lede">Gary Ridgway murdered at least 49 women across Washington and stayed free for nearly twenty years. He was not invisible. A victim's boyfriend wrote down his license plate and led police to his front door in <em>1983</em>. The signals existed in the evidence. The problem was that the evidence was paper, scattered across agencies, and impossible to query. This is the case rebuilt as a modern Azure data platform, evidence type by evidence type, with the Azure data concept attached to each one.</p>
     <div class="badges">
       <span class="badge"><b>Theory:</b> caught by ~1988, not 2001</span>
-      <span class="badge"><b>Built for:</b> DP-900 exam prep</span>
+      <span class="badge"><b>Built for:</b> Azure study</span>
       <span class="badge"><b>Format:</b> click any panel to expand</span>
     </div>
 
@@ -327,8 +327,8 @@
 <!-- EXAM MAP -->
 <section id="exammap">
   <div class="wrap">
-    <h2><span class="num">02</span>How this maps to your exam</h2>
-    <p class="sub">DP-900 is organized into four big domains. This case study is deliberately built to exercise all four. Use the case as the story you hang the vocabulary on — that's how the abstractions stick.</p>
+    <h2><span class="num">02</span>How this maps to Azure fundamentals</h2>
+    <p class="sub">Azure data fundamentals break into four big areas. This case study is deliberately built to exercise all four. Use the case as the story you hang the vocabulary on — that's how the abstractions stick.</p>
     <div class="exammap">
       <div class="e"><div class="d">Core data concepts</div><div class="w"><b>Sections 3–4.</b> Structured vs semi-structured vs unstructured; transactional (OLTP) vs analytical (OLAP); the ingest→store→process→analyze→visualize pipeline; ETL vs ELT.</div></div>
       <div class="e"><div class="d">Relational data</div><div class="w"><b>Dossier 4.</b> Azure SQL Database, tables, keys, normalization, and why a relational store runs the live case (PaaS vs IaaS included).</div></div>
@@ -374,7 +374,7 @@
 <section id="evidence">
   <div class="wrap">
     <h2><span class="num">04</span>Evidence dossiers: how each type is ingested, stored &amp; analyzed</h2>
-    <p class="sub">This is the heart of the project, and the part that matters most for your exam. Each dossier takes one era-appropriate evidence type, tells the real case story attached to it, then walks the full data lifecycle: how it gets ingested, where it's stored and why, how it's analyzed, and the DP-900 concept it teaches. Click to expand.</p>
+    <p class="sub">This is the heart of the project, and the part that matters most for learning Azure. Each dossier takes one era-appropriate evidence type, tells the real case story attached to it, then walks the full data lifecycle: how it gets ingested, where it's stored and why, how it's analyzed, and the Azure concept it teaches. Click to expand.</p>
     <button class="expand-all" id="expandAll">⊕ Expand all dossiers</button>
 
     <!-- DOSSIER 1 -->
@@ -384,7 +384,7 @@
         <div class="row case"><span class="lab">The real case</span><p>On April 30, 1983, Marie Malvar's boyfriend, Robert Woods, watched her climb into a pickup truck on Pacific Highway South. He noticed its patches of primer paint and followed it until he lost it at a light. Days later he spotted the same truck parked at a house — Gary Ridgway's. He brought police the address. A detective scribbled the lead into notes and an index card. Ridgway denied everything, and the card went into a box with thousands of others. The single most valuable lead in the case became a needle in the file room.</p></div>
         <div class="row"><span class="lab">How it's ingested</span><p>Each card and notebook page is scanned to an image and dropped into the raw zone. <b>Azure AI Document Intelligence</b> runs its handwriting/OCR model over them, extracting both the free text and structured fields (date, location, vehicle, names) into JSON. <b>Azure Data Factory</b> orchestrates this as a scheduled pipeline: detect new scans, call the model, write results downstream.</p><div class="svc-tags"><span class="svc-tag">AI Document Intelligence</span><span class="svc-tag">Data Factory</span><span class="svc-tag">Data Lake Gen2 (raw)</span></div></div>
         <div class="row"><span class="lab">How it's analyzed</span><p><b>Azure AI Language</b> applies named-entity recognition to pull people, vehicles, and places out of the messy prose. <b>Azure AI Search</b> indexes every transcribed card so a detective can full-text search "primer pickup, Pac Hwy S" and get instant hits — the cross-reference that, in reality, was never made.</p><div class="svc-tags"><span class="svc-tag">AI Language (NER)</span><span class="svc-tag">AI Search</span></div></div>
-        <div class="exampoint"><span class="lab">Exam point</span><p>This is the classic <b>unstructured data</b> example. It also shows an <b>AI workload</b> turning unstructured input into structured output. Remember the order of the analytics pipeline: <b>ingest → store → process → analyze → visualize.</b> Document Intelligence is "process"; it's what makes unstructured data usable.</p></div>
+        <div class="exampoint"><span class="lab">Azure concept</span><p>This is the classic <b>unstructured data</b> example. It also shows an <b>AI workload</b> turning unstructured input into structured output. Remember the order of the analytics pipeline: <b>ingest → store → process → analyze → visualize.</b> Document Intelligence is "process"; it's what makes unstructured data usable.</p></div>
         <div class="row reveal"><span class="lab">What it reveals</span><p>The Malvar card stops being a dead end. "Ridgway + primer pickup + Pacific Highway South" becomes a joinable record that links to his vehicle registration and to other sightings — surfacing him years before the DNA ever spoke.</p></div>
         <div class="figure">
           <svg viewBox="0 0 1000 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A handwritten index card transformed by OCR into structured JSON fields">
@@ -433,7 +433,7 @@
         <div class="row case"><span class="lab">The real case</span><p>Many of the women who worked the strip told police they had seen the same ordinary-looking man, repeatedly, in a truck. Robert Woods gave a formal statement. Each statement was a typed form with the same header fields (name, date, location) wrapped around a free-text account. Individually, each was just one more piece of paper. Collectively, they were a chorus naming the same person — but no one could hear the chorus because the pages never sat in one queryable place.</p></div>
         <div class="row"><span class="lab">How it's ingested</span><p>Typed forms run through Document Intelligence's <b>layout model</b>, which understands form structure: it lifts the header fields into clean key-value pairs and keeps the narrative body as text. The result is a JSON document per statement — predictable fields plus a variable body. That's the definition of <b>semi-structured</b> data.</p><div class="svc-tags"><span class="svc-tag">AI Document Intelligence (layout)</span><span class="svc-tag">Data Factory</span></div></div>
         <div class="row"><span class="lab">How it's stored &amp; analyzed</span><p>The JSON documents land in <b>Azure Cosmos DB</b>, a NoSQL document store that's happy with varying schemas. Analysis uses <b>AI Language</b> for entity + key-phrase extraction and <b>AI Search</b> to query across all statements at once: "every statement mentioning a man in a pickup who 'seemed normal.'"</p><div class="svc-tags"><span class="svc-tag">Cosmos DB (document)</span><span class="svc-tag">AI Language</span><span class="svc-tag">AI Search</span></div></div>
-        <div class="exampoint"><span class="lab">Exam point</span><p><b>Semi-structured data</b> = has some organizational tags/fields but no rigid table schema; JSON is the textbook example. <b>Cosmos DB</b> is Azure's globally distributed NoSQL service for exactly this. Know its model: flexible schema, multiple APIs (NoSQL/Core, MongoDB, Cassandra, Table, Gremlin), low-latency reads/writes.</p></div>
+        <div class="exampoint"><span class="lab">Azure concept</span><p><b>Semi-structured data</b> = has some organizational tags/fields but no rigid table schema; JSON is the textbook example. <b>Cosmos DB</b> is Azure's globally distributed NoSQL service for exactly this. Know its model: flexible schema, multiple APIs (NoSQL/Core, MongoDB, Cassandra, Table, Gremlin), low-latency reads/writes.</p></div>
         <div class="row reveal"><span class="lab">What it reveals</span><p>Frequency. A query across all statements shows the same description recurring — a measurable signal that a manual file review buried. The "ordinary man in the truck" becomes a ranked lead, not an anecdote.</p></div>
       </div></div>
     </div>
@@ -445,7 +445,7 @@
         <div class="row case"><span class="lab">The real case</span><p>Public attention generated an avalanche of tips. The task force investigated ~1,300 suspects and still had roughly <b>6,000 names waiting</b> to be checked, with each check taking up to six months. The bottleneck wasn't bad tips — Ridgway's name was in there more than once. The bottleneck was throughput: a single minicomputer and a finite number of detectives could not physically enter, dedupe, and cross-check the volume fast enough.</p></div>
         <div class="row"><span class="lab">How it's ingested</span><p><b>Azure Data Factory</b> runs high-volume batch ingestion: forms scanned, OCR'd, and written straight into the store with no human re-keying. There is no "data entry backlog" because ingestion is automated and elastic.</p><div class="svc-tags"><span class="svc-tag">Data Factory (batch)</span><span class="svc-tag">AI Document Intelligence</span></div></div>
         <div class="row"><span class="lab">How it's stored &amp; analyzed</span><p><b>Cosmos DB</b> absorbs the write storm — it scales throughput horizontally and doesn't care that every tip has slightly different fields. <b>Azure Databricks</b> then runs Spark jobs for deduplication and <b>entity resolution</b>: collapsing "G. Ridgway," "Gary Ridgeway," and "Gary L. Ridgway" into one entity and counting how many independent tips point to him.</p><div class="svc-tags"><span class="svc-tag">Cosmos DB</span><span class="svc-tag">Databricks (Spark)</span><span class="svc-tag">Synapse</span></div></div>
-        <div class="exampoint"><span class="lab">Exam point</span><p>This is the canonical <b>NoSQL use case</b>: massive, fast, schema-flexible writes. A traditional relational database struggles here; that's <em>why</em> non-relational stores exist. Note the concept of <b>throughput/scale-out</b> (Cosmos provisions capacity in Request Units). Also note: this is <b>ELT</b> (load raw first, transform later in Databricks), not ETL.</p></div>
+        <div class="exampoint"><span class="lab">Azure concept</span><p>This is the canonical <b>NoSQL use case</b>: massive, fast, schema-flexible writes. A traditional relational database struggles here; that's <em>why</em> non-relational stores exist. Note the concept of <b>throughput/scale-out</b> (Cosmos provisions capacity in Request Units). Also note: this is <b>ELT</b> (load raw first, transform later in Databricks), not ETL.</p></div>
         <div class="row reveal"><span class="lab">What it reveals</span><p>Repetition becomes a number. Instead of 6,000 unchecked names, you get a ranked list where Ridgway — named in multiple independent tips — rises near the top automatically, the moment the data lands.</p></div>
       </div></div>
     </div>
@@ -457,7 +457,7 @@
         <div class="row case"><span class="lab">The real case</span><p>Three structured datasets quietly held the case. The DMV had the pickup registered to Ridgway. Motels along the strip kept check-in registries. And Kenworth, the truck plant where Ridgway worked as a spray painter, had time cards — which, it was later noted, showed him absent on days victims disappeared. Each dataset was clean and tabular. None of them was ever joined to the others in time.</p></div>
         <div class="row"><span class="lab">How it's ingested</span><p>These are already structured, so <b>Data Factory</b> uses simple scheduled copy activities — connect to the source, map columns, load on a cadence. No OCR needed; this is straightforward ETL into tables.</p><div class="svc-tags"><span class="svc-tag">Data Factory (copy activity)</span></div></div>
         <div class="row"><span class="lab">How it's stored &amp; analyzed</span><p>Landed in <b>Azure SQL Database</b>, a managed relational store. Tables for <code>suspects</code>, <code>vehicles</code>, <code>sightings</code>, and <code>employment</code> are linked by keys. A detective updates the live case here (a transactional/OLTP workload). For the big cross-source question, the data flows to <b>Synapse</b>, which joins employment absences × strip sightings × vehicle type across millions of rows.</p><div class="svc-tags"><span class="svc-tag">Azure SQL Database (OLTP)</span><span class="svc-tag">Synapse (OLAP)</span></div></div>
-        <div class="exampoint"><span class="lab">Exam point</span><p>Pure <b>relational data</b>: fixed schema, rows/columns, <b>primary &amp; foreign keys</b>, normalization. <b>Azure SQL Database is PaaS</b> (Microsoft manages the infrastructure); SQL Server on an Azure VM would be <b>IaaS</b>; SQL Managed Instance is also PaaS. And the key distinction: <b>OLTP</b> (Azure SQL, running the case) vs <b>OLAP</b> (Synapse, analyzing across it). This OLTP/OLAP split is one of the most tested ideas on DP-900.</p></div>
+        <div class="exampoint"><span class="lab">Azure concept</span><p>Pure <b>relational data</b>: fixed schema, rows/columns, <b>primary &amp; foreign keys</b>, normalization. <b>Azure SQL Database is PaaS</b> (Microsoft manages the infrastructure); SQL Server on an Azure VM would be <b>IaaS</b>; SQL Managed Instance is also PaaS. And the key distinction: <b>OLTP</b> (Azure SQL, running the case) vs <b>OLAP</b> (Synapse, analyzing across it). This OLTP/OLAP split is one of the most important distinctions in Azure data fundamentals.</p></div>
         <div class="row reveal"><span class="lab">What it reveals</span><p>The join no human ran. A foreign key does what red string couldn't: one analytical query intersecting the three tables puts Ridgway — strip-present, pickup-owning, absent on disappearance dates — at the very top of a very short list.</p></div>
       </div></div>
     </div>
@@ -469,7 +469,7 @@
         <div class="row case"><span class="lab">The real case</span><p>Ridgway dumped victims in clusters in wooded areas and the Green River so he could find them again — and he returned to the sites. The task force consulted the imprisoned Ted Bundy, who predicted exactly this revisitation behavior and advised staking out fresh graves. The geographic pattern was real and meaningful, but it lived as pins on a wall map analyzed by eye. The clusters pointed, roughly, at the corridor where Ridgway lived and worked.</p></div>
         <div class="row"><span class="lab">How it's ingested</span><p>Two streams. Photographs are unstructured binary files, so they go to <b>Azure Blob Storage</b> (object storage), with <b>Azure AI Vision</b> auto-tagging contents and reading any text. Recovery locations are converted to coordinates by <b>Azure Maps</b> geocoding and stored as structured spatial rows.</p><div class="svc-tags"><span class="svc-tag">Blob Storage (images)</span><span class="svc-tag">AI Vision (tagging/OCR)</span><span class="svc-tag">Azure Maps (geocode)</span></div></div>
         <div class="row"><span class="lab">How it's analyzed</span><p><b>Power BI</b> renders the dump sites as a live map with heat-mapping and a time slider — the wall of pins, but queryable. <b>Azure ML</b> runs clustering (e.g., k-means) over the coordinates to perform <b>geographic profiling</b>: estimating the offender's likely anchor point (home/work). Bundy's revisitation insight becomes an automated geofence alert when activity recurs near a known site.</p><div class="svc-tags"><span class="svc-tag">Power BI (geo viz)</span><span class="svc-tag">Azure ML (clustering)</span><span class="svc-tag">Azure Maps</span></div></div>
-        <div class="exampoint"><span class="lab">Exam point</span><p><b>Blob Storage</b> = unstructured object storage (know the access tiers: hot/cool/cold/archive). <b>Power BI</b> = the visualization layer (Desktop authors; Service publishes/shares; reports vs dashboards). <b>Clustering</b> is an <b>unsupervised machine learning</b> technique — contrast it with classification, which is supervised. These ML basics are squarely in the analytics/AI domain.</p></div>
+        <div class="exampoint"><span class="lab">Azure concept</span><p><b>Blob Storage</b> = unstructured object storage (know the access tiers: hot/cool/cold/archive). <b>Power BI</b> = the visualization layer (Desktop authors; Service publishes/shares; reports vs dashboards). <b>Clustering</b> is an <b>unsupervised machine learning</b> technique — contrast it with classification, which is supervised. These ML basics are squarely in the analytics/AI domain.</p></div>
         <div class="row reveal"><span class="lab">What it reveals</span><p>The map stops being decoration and becomes a pointer. Geographic profiling narrows "somewhere in King County" to a specific stretch of Pacific Highway South — the exact corridor of Ridgway's life — and cross-referenced with the Synapse suspect list, the two pointers meet on one man.</p></div>
         <div class="figure">
           <svg viewBox="0 0 1000 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Geographic profiling heat map estimating the offender's anchor point from clustered dump sites">
@@ -528,7 +528,7 @@
         <div class="row case"><span class="lab">The real case</span><p>Two pieces of physical evidence damn the timeline. A distinctive <b>spray paint</b> was found on material associated with a victim — and Ridgway was a spray painter at Kenworth — yet the paint went <b>~20 years</b> untested. And in 1987 police collected a <b>saliva sample</b> from Ridgway, but the DNA science of the day couldn't use it. It sat for <b>14 years</b> until STR-PCR matched it in 2001. The evidence didn't change. Only our ability to read it did.</p></div>
         <div class="row"><span class="lab">How it's ingested &amp; stored</span><p>This is about data <b>governance</b>, not OCR. Every physical item gets a record in <b>Azure SQL Database</b> — an <code>evidence</code> table with chain-of-custody, status, and a "testable-with-current-methods" flag. Lab reports and the raw sample metadata are retained in the <b>Data Lake</b> indefinitely (storage is cheap; never discard raw data).</p><div class="svc-tags"><span class="svc-tag">Azure SQL (evidence register)</span><span class="svc-tag">Data Lake (lab reports)</span></div></div>
         <div class="row"><span class="lab">How it's analyzed &amp; acted on</span><p>A <b>Data Factory</b> pipeline watches for new capabilities: when a more sensitive method comes online, it automatically re-queues every item flagged "untestable" for re-analysis and alerts the team on a match — instead of relying on someone to remember a sample from 14 years ago. The spray-paint trace, meanwhile, is a structured attribute that joins straight to Ridgway's Kenworth employment record.</p><div class="svc-tags"><span class="svc-tag">Data Factory (trigger/re-run)</span><span class="svc-tag">Synapse (join to employment)</span></div></div>
-        <div class="exampoint"><span class="lab">Exam point</span><p>Two themes: <b>data governance &amp; the value of retaining raw data</b> (you can re-process the lake later as tools improve), and the full <b>data analytics lifecycle</b> closing the loop into action. Honest scope note for accuracy: the actual DNA chemistry happens in a <em>lab</em>, not in Azure — the platform's job is to <em>track, flag, join, and auto-trigger</em>, not to invent forensics.</p></div>
+        <div class="exampoint"><span class="lab">Azure concept</span><p>Two themes: <b>data governance &amp; the value of retaining raw data</b> (you can re-process the lake later as tools improve), and the full <b>data analytics lifecycle</b> closing the loop into action. Honest scope note for accuracy: the actual DNA chemistry happens in a <em>lab</em>, not in Azure — the platform's job is to <em>track, flag, join, and auto-trigger</em>, not to invent forensics.</p></div>
         <div class="row reveal"><span class="lab">What it reveals</span><p>The paint trace links a victim directly to Ridgway's occupation years early. And the parked sample never gets forgotten — the moment STR-PCR exists, the match fires on its own. In the rewritten timeline, though, the circumstantial platform has already put him under surveillance long before.</p></div>
       </div></div>
     </div>
@@ -540,7 +540,7 @@
 <section id="arch">
   <div class="wrap">
     <h2><span class="num">05</span>The reference architecture</h2>
-    <p class="sub">All six dossiers feed one pipeline — the exact shape DP-900 teaches. Data flows left to right, from messy reality into decisions.</p>
+    <p class="sub">All six dossiers feed one pipeline — the exact shape a modern Azure data platform follows. Data flows left to right, from messy reality into decisions.</p>
     <div class="pipe">
       <div class="layer"><div class="ph">Ingest</div><span class="svc">Data Factory<small>orchestration / ETL · ELT</small></span><span class="svc">AI Doc Intelligence<small>OCR + handwriting</small></span></div>
       <div class="layer"><div class="ph">Store (raw)</div><span class="svc">Data Lake Gen2<small>all paper, scanned</small></span><span class="svc">Blob Storage<small>photos / maps</small></span></div>
@@ -549,8 +549,8 @@
       <div class="layer"><div class="ph">Act</div><span class="svc">Power BI + Maps<small>geo-profiling</small></span><span class="svc">AI Search<small>ask anything</small></span></div>
     </div>
     <div class="callout dp">
-      <span class="tag">DP-900 concept · the analytics workload</span>
-      Memorize this flow: <b>ingest → store → process → analyze → visualize</b>. And keep the two worlds straight: <b>transactional (OLTP)</b> systems run the day-to-day case; <b>analytical (OLAP)</b> systems find patterns across all of it. Mixing those up is the single most common DP-900 trap.
+      <span class="tag">Azure concept · the analytics workload</span>
+      Memorize this flow: <b>ingest → store → process → analyze → visualize</b>. And keep the two worlds straight: <b>transactional (OLTP)</b> systems run the day-to-day case; <b>analytical (OLAP)</b> systems find patterns across all of it. Mixing those up is the single most common trap when learning Azure analytics.
     </div>
   </div>
 </section>
@@ -579,14 +579,14 @@
 <section id="analytics">
   <div class="wrap">
     <h2><span class="num">07</span>The four types of analytics, on one case</h2>
-    <p class="sub">DP-900 explicitly tests the analytics ladder: descriptive → diagnostic → predictive → prescriptive (each answers a harder question than the last). Here's the whole ladder told through the investigation.</p>
+    <p class="sub">Azure data fundamentals cover the analytics ladder: descriptive → diagnostic → predictive → prescriptive (each answers a harder question than the last). Here's the whole ladder told through the investigation.</p>
     <div class="ladder">
       <div class="rung"><div class="k">Descriptive</div><div class="q">What happened?</div><div class="ex">49 victims, mapped by where and when they were found. The basic dashboard.</div><span class="tool">→ Power BI</span></div>
       <div class="rung"><div class="k">Diagnostic</div><div class="q">Why did it happen here?</div><div class="ex">Dump sites cluster along one corridor because that's the offender's comfort zone.</div><span class="tool">→ Synapse + Maps</span></div>
       <div class="rung"><div class="k">Predictive</div><div class="q">What's likely next / who?</div><div class="ex">Geographic profiling estimates the anchor point; the risk model ranks suspects.</div><span class="tool">→ Azure ML</span></div>
       <div class="rung"><div class="k">Prescriptive</div><div class="q">What should we do?</div><div class="ex">Surveil this suspect; stake out the fresh dump site (Bundy's exact advice).</div><span class="tool">→ ML + alerts</span></div>
     </div>
-    <div class="callout dp"><span class="tag">DP-900 concept · analytics types</span>Each rung is more valuable and harder than the one below it. Descriptive and diagnostic look <em>backward</em>; predictive and prescriptive look <em>forward</em>. If an exam question asks "which type recommends an action," the answer is <b>prescriptive</b>.</div>
+    <div class="callout dp"><span class="tag">Azure concept · analytics types</span>Each rung is more valuable and harder than the one below it. Descriptive and diagnostic look <em>backward</em>; predictive and prescriptive look <em>forward</em>. When you're asked which type recommends an action, the answer is <b>prescriptive</b>.</div>
   </div>
 </section>
 
@@ -594,7 +594,7 @@
 <section id="roles">
   <div class="wrap">
     <h2><span class="num">08</span>Who builds this — the data roles</h2>
-    <p class="sub">DP-900 also tests the three core data roles. The task force, re-staffed for the cloud, would need all three.</p>
+    <p class="sub">Azure data fundamentals also cover the three core data roles. The task force, re-staffed for the cloud, would need all three.</p>
     <div class="roles">
       <div class="role"><div class="r">Data Engineer</div><div class="j">Builds and runs the ingestion pipelines: Data Factory, the lake, OCR processing, the Synapse warehouse. The person who makes the paper flow into the platform.</div></div>
       <div class="role"><div class="r">Database Administrator</div><div class="j">Manages the operational case database (Azure SQL): security, backups, access, performance. Guards the chain-of-custody and who can see what.</div></div>
@@ -682,12 +682,12 @@
     <h2><span class="num">11</span>Where the theory is strong, and where it strains</h2>
     <p class="sub">A good case study argues its own thesis honestly. Here's the steel-man and the counter.</p>
     <h3>Strongest ground</h3>
-    <p>The data genuinely existed and genuinely couldn't be cross-referenced. The VAX backlog, the 6,000 unchecked names, the siloed agencies, the Malvar lead delivered to police in 1983, and the 14-year gap between collecting the sample and reading it are all real, and all squarely "data platform" problems. Making analog records queryable and joinable isn't science fiction — it's exactly what the DP-900 stack does.</p>
+    <p>The data genuinely existed and genuinely couldn't be cross-referenced. The VAX backlog, the 6,000 unchecked names, the siloed agencies, the Malvar lead delivered to police in 1983, and the 14-year gap between collecting the sample and reading it are all real, and all squarely "data platform" problems. Making analog records queryable and joinable isn't science fiction — it's exactly what the Azure data stack does.</p>
     <h3>Where it strains — say it plainly</h3>
     <p>Three honest limits. First, <b>DNA still needs the lab.</b> Azure makes the 1987 sample findable and flagged, but it can't invent STR-PCR — the conviction-grade match still waits on 2001-era chemistry. The platform's contribution is the <em>circumstantial</em> case that gets him arrested and sampled earlier, plus auto-rerunning the match when the method exists.</p>
     <p>Second, <b>garbage in, garbage out.</b> If a sighting was never written down, no pipeline recovers it. The model is only as good as what detectives actually recorded.</p>
     <p>Third, <b>circumstantial ranking isn't proof.</b> Being rank one on a risk model earns a warrant and surveillance, not a verdict. The honest claim isn't "Azure convicts him in 1984" — it's "Azure puts him under the microscope years earlier, which is where the real evidence trail accelerates."</p>
-    <div class="callout dp"><span class="tag">For your DP-900 study</span>If you can explain <em>why</em> each service sits in its pipeline layer — ingest, store, OLTP, OLAP, ML, viz — and articulate OLTP-vs-OLAP, relational-vs-non-relational, structured-vs-unstructured, and the four analytics types using this case, you've internalized a large share of the exam's conceptual weight. The case is the mnemonic.</div>
+    <div class="callout dp"><span class="tag">For your Azure study</span>If you can explain <em>why</em> each service sits in its pipeline layer — ingest, store, OLTP, OLAP, ML, viz — and articulate OLTP-vs-OLAP, relational-vs-non-relational, structured-vs-unstructured, and the four analytics types using this case, you've internalized a large share of Azure's data fundamentals. The case is the mnemonic.</div>
   </div>
 </section>
 
@@ -710,7 +710,7 @@
       <a href="https://en.wikipedia.org/wiki/Violent_Criminal_Apprehension_Program">Violent Criminal Apprehension Program (ViCAP)</a>
       <a href="https://www.oxygen.com/the-dna-of-murder-with-paul-holes/crime-time/green-river-killer-gary-ridgway-dna-capture">Captured with 20-year-old DNA — Oxygen</a>
     </div>
-    <p style="margin-top:22px">Project Green River · a DP-900 data-analytics case study · built for Ben Whetstone</p>
+    <p style="margin-top:22px">Project Green River · an Azure data-analytics case study · built for Ben Whetstone</p>
   </div>
 </footer>
 
