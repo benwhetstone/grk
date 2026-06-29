@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Green River — A Modern Azure Reconstruction (DP-900 Case Study)</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel-2:#1c2330; --ink:#e6edf3; --muted:#9aa7b4;
+    --line:#2a3340; --accent:#36c5a8; --accent-2:#4aa8ff; --warn:#e0625e; --gold:#e3b341;
+    --grid: rgba(74,168,255,.06);
+    --mono:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.62;
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:38px 38px;}
+  a{color:var(--accent-2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+  header.hero{border-bottom:1px solid var(--line);
+    background:radial-gradient(1200px 420px at 72% -10%,rgba(54,197,168,.14),transparent 60%),var(--panel);
+    padding:64px 0 46px;}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+  h1{font-size:clamp(30px,5vw,52px);line-height:1.08;margin:0 0 16px;letter-spacing:-.02em}
+  h1 .thin{color:var(--muted);font-weight:400;display:block;font-size:.46em;letter-spacing:0;margin-top:12px;line-height:1.4}
+  .lede{font-size:18.5px;color:var(--muted);max-width:780px;margin:0}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+  .badge{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);background:var(--panel-2);
+    color:var(--muted);padding:6px 11px;border-radius:999px;letter-spacing:.04em}
+  .badge b{color:var(--accent)}
+
+  nav.toc{position:sticky;top:0;z-index:30;background:rgba(13,17,23,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav.toc .wrap{display:flex;gap:4px;overflow-x:auto;padding:10px 22px}
+  nav.toc a{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap;padding:7px 12px;border-radius:7px;border:1px solid transparent}
+  nav.toc a:hover{color:var(--ink);background:var(--panel-2);text-decoration:none;border-color:var(--line)}
+
+  section{padding:54px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:clamp(23px,3.4vw,32px);margin:0 0 8px;letter-spacing:-.01em}
+  h2 .num{font-family:var(--mono);color:var(--accent);font-size:.6em;margin-right:12px;vertical-align:middle}
+  .sub{color:var(--muted);margin:0 0 28px;max-width:800px;font-size:16.5px}
+  h3{font-size:19px;margin:30px 0 10px}
+  p{margin:0 0 16px}
+
+  .callout{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--panel);padding:16px 18px;border-radius:8px;margin:22px 0;font-size:15px}
+  .callout.dp{border-left-color:var(--accent-2)}
+  .callout.warn{border-left-color:var(--warn)}
+  .callout .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .callout.dp .tag{color:var(--accent-2)}
+  .callout.warn .tag{color:var(--warn)}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+  .compare .col{border:1px solid var(--line);border-radius:10px;padding:20px;background:var(--panel)}
+  .compare .then{border-top:3px solid var(--warn)}
+  .compare .now{border-top:3px solid var(--accent)}
+  .compare h4{margin:0 0 14px;font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+  .compare .then h4{color:var(--warn)} .compare .now h4{color:var(--accent)}
+  .compare ul{margin:0;padding-left:18px;color:var(--muted);font-size:14.5px}
+  .compare li{margin-bottom:10px}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:30px 0 6px}
+  .stat{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:18px;text-align:center}
+  .stat .n{font-size:30px;font-weight:700;color:var(--gold);line-height:1;font-family:var(--mono)}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:8px}
+
+  /* exam map */
+  .exammap{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}
+  .exammap .e{border:1px solid var(--line);border-radius:10px;background:var(--panel-2);padding:14px}
+  .exammap .e .d{font-family:var(--mono);font-size:11px;color:var(--accent-2);text-transform:uppercase;letter-spacing:.08em}
+  .exammap .e .w{font-size:13.5px;color:var(--muted);margin-top:7px}
+  .exammap .e b{color:var(--ink)}
+
+  /* DOSSIERS */
+  .dossier{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin:20px 0;overflow:hidden}
+  .dossier > .d-head{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;user-select:none;background:linear-gradient(90deg,rgba(54,197,168,.06),transparent)}
+  .dossier .d-no{font-family:var(--mono);font-size:12px;color:var(--bg);background:var(--accent);font-weight:700;border-radius:7px;padding:6px 9px;flex:0 0 auto}
+  .dossier .d-tt{flex:1}
+  .dossier .d-tt .t{font-weight:700;font-size:17px;display:block;letter-spacing:-.01em}
+  .dossier .d-tt .s{font-family:var(--mono);font-size:11.5px;color:var(--warn);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;display:block}
+  .dossier .chev{color:var(--muted);font-size:14px;transition:transform .25s}
+  .dossier.open .chev{transform:rotate(90deg)}
+  .dossier .d-body{max-height:0;overflow:hidden;transition:max-height .45s ease}
+  .dossier.open .d-body{max-height:2600px}
+  .dossier .d-inner{padding:4px 20px 22px;border-top:1px solid var(--line)}
+  .row{padding:15px 0;border-bottom:1px dashed var(--line)}
+  .row:last-child{border-bottom:none}
+  .row .lab{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .row.case .lab{color:var(--gold)} .row.reveal .lab{color:var(--warn)}
+  .row p{font-size:14.5px;margin:0}
+  .row .svc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+  .svc-tag{font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--line);background:var(--panel-2);border-radius:6px;padding:4px 8px}
+  .exampoint{margin-top:10px;border:1px solid var(--line);border-left:3px solid var(--accent-2);border-radius:7px;background:var(--panel-2);padding:11px 13px}
+  .exampoint .lab{color:var(--accent-2);font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:5px}
+  .exampoint p{font-size:13.5px;color:var(--muted)} .exampoint b{color:var(--ink)}
+
+  /* pipeline */
+  .pipe{display:grid;grid-template-columns:repeat(5,1fr);margin:34px 0 10px;align-items:stretch}
+  .layer{position:relative;border:1px solid var(--line);background:var(--panel);padding:16px 14px;text-align:center}
+  .layer:not(:last-child){border-right:none}
+  .layer .ph{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .layer .svc{font-size:13px;color:var(--ink);display:block;margin:5px 0;font-weight:600}
+  .layer .svc small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+  .layer::after{content:"›";position:absolute;right:-11px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:22px;z-index:5;background:var(--bg);padding:0 1px}
+  .layer:last-child::after{content:""}
+
+  /* service quick reference */
+  .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px}
+  .qcard{border:1px solid var(--line);border-radius:11px;background:var(--panel);padding:16px 17px}
+  .qcard .h{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+  .qcard .ic{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:var(--panel-2);border:1px solid var(--line);font-size:16px;flex:0 0 auto}
+  .qcard .nm{font-weight:700;font-size:14.5px}
+  .qcard .nm small{display:block;color:var(--muted);font-family:var(--mono);font-size:10.5px;font-weight:400;margin-top:1px}
+  .qcard p{font-size:13.5px;color:var(--muted);margin:0 0 9px}
+  .qcard .pa{font-family:var(--mono);font-size:10.5px;color:var(--accent-2);border-top:1px solid var(--line);padding-top:8px}
+  .qcard .pa b{color:var(--gold)}
+
+  /* analytics ladder */
+  .ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}
+  .rung{border:1px solid var(--line);border-radius:11px;background:var(--panel);padding:16px;position:relative}
+  .rung .k{font-family:var(--mono);font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em}
+  .rung .q{font-size:15px;font-weight:700;margin:6px 0 8px}
+  .rung .ex{font-size:13px;color:var(--muted)}
+  .rung .tool{font-family:var(--mono);font-size:11px;color:var(--gold);margin-top:9px;display:block}
+
+  /* roles */
+  .roles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+  .role{border:1px solid var(--line);border-radius:11px;background:var(--panel);padding:16px}
+  .role .r{font-weight:700;font-size:15px;color:var(--accent)} .role .j{font-size:13.5px;color:var(--muted);margin-top:8px}
+
+  /* demo */
+  .demo{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:22px;margin-top:24px}
+  .toggle{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:18px}
+  .toggle button{font-family:var(--mono);font-size:12.5px;background:var(--panel-2);color:var(--muted);border:none;padding:9px 16px;cursor:pointer;transition:.2s}
+  .toggle button.active{background:var(--accent);color:#06231d;font-weight:700}
+  .demo .scene{font-size:15px;color:var(--muted)} .demo .scene b{color:var(--ink)}
+  .demo .q{font-family:var(--mono);font-size:13.5px;color:var(--gold);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:16px}
+  .demo .out{display:none} .demo .out.show{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .result-row{display:flex;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+  .result-row .hit{color:var(--accent);font-family:var(--mono);font-size:12px;flex:0 0 64px}
+  .ridge{color:var(--warn);font-weight:700}
+
+  /* timeline */
+  .tl{position:relative;margin-top:26px;padding-left:30px}
+  .tl::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--line)}
+  .tl .ev{position:relative;margin-bottom:24px}
+  .tl .ev::before{content:"";position:absolute;left:-29px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--accent)}
+  .tl .ev.bad::before{border-color:var(--warn)}
+  .tl .ev .yr{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:700}
+  .tl .ev.bad .yr{color:var(--warn)}
+  .tl .ev .tx{font-size:14.5px;color:var(--muted);margin-top:3px} .tl .ev .tx b{color:var(--ink)}
+
+  /* figures / visuals */
+  .figure{margin:28px 0;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:18px;overflow:hidden}
+  .figure svg{display:block;width:100%;height:auto}
+  .figcap{font-size:12.5px;color:var(--muted);margin-top:13px;font-family:var(--mono);letter-spacing:.01em;line-height:1.5}
+  .figcap b{color:var(--accent)}
+  .hero-fig{margin:30px 0 4px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0a0e14}
+  .hero-fig svg{display:block;width:100%;height:auto}
+  .dossier .figure{margin:15px 0 4px}
+
+  footer{padding:40px 0 70px;color:var(--muted);font-size:13px}
+  footer .disc{border:1px solid var(--line);border-radius:10px;padding:18px;background:var(--panel);margin-bottom:22px}
+  footer h4{margin:0 0 8px;color:var(--ink);font-size:14px}
+  .src-list{columns:2;column-gap:24px;font-size:12.5px}
+  .src-list a{display:block;margin-bottom:7px}
+
+  .expand-all{font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;margin-bottom:6px}
+  .expand-all:hover{border-color:var(--accent)}
+
+  @media(max-width:760px){
+    .compare,.svc-grid,.stats,.exammap,.ladder,.roles{grid-template-columns:1fr}
+    .stats,.exammap,.ladder{grid-template-columns:1fr 1fr}
+    .pipe{grid-template-columns:1fr}
+    .layer:not(:last-child){border-right:1px solid var(--line);border-bottom:none}
+    .layer::after{content:"";}
+    .src-list{columns:1}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker">DP-900 Field Project · Data Fundamentals Case Study</p>
+    <h1>Project Green River
+      <span class="thin">How modern data analytics could save lives in cold-case investigations — the Green River Killer, rebuilt as an Azure data platform.</span>
+    </h1>
+    <p class="lede">Gary Ridgway murdered at least 49 women across Washington and stayed free for nearly twenty years. He was not invisible. A victim's boyfriend wrote down his license plate and led police to his front door in <em>1983</em>. The signals existed in the evidence. The problem was that the evidence was paper, scattered across agencies, and impossible to query. This is the case rebuilt as a modern Azure data platform, evidence type by evidence type, with the DP-900 exam concept attached to each one.</p>
+    <div class="badges">
+      <span class="badge"><b>Theory:</b> caught by ~1988, not 2001</span>
+      <span class="badge"><b>Built for:</b> DP-900 exam prep</span>
+      <span class="badge"><b>Format:</b> click any panel to expand</span>
+    </div>
+
+    <div class="hero-fig">
+      <svg viewBox="0 0 1080 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stylized investigation map of dump-site clusters along the Pacific Highway corridor feeding into a data pipeline">
+        <defs>
+          <linearGradient id="hg" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#0a0e14"/><stop offset="0.55" stop-color="#0d1320"/><stop offset="1" stop-color="#101a2a"/>
+          </linearGradient>
+          <radialGradient id="anchor" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#e0625e" stop-opacity="0.45"/><stop offset="1" stop-color="#e0625e" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="1080" height="380" fill="url(#hg)"/>
+        <!-- faint grid -->
+        <g stroke="#4aa8ff" stroke-opacity="0.06">
+          <path d="M0 60H1080M0 120H1080M0 180H1080M0 240H1080M0 300H1080"/>
+          <path d="M120 0V380M240 0V380M360 0V380M480 0V380M600 0V380M720 0V380M840 0V380M960 0V380"/>
+        </g>
+        <!-- LEFT: the map -->
+        <text x="34" y="46" fill="#36c5a8" font-family="monospace" font-size="12" letter-spacing="2">KING COUNTY · 1982–1984</text>
+        <!-- Green River meander -->
+        <path d="M40 300 C 120 250, 90 200, 180 180 S 300 150, 360 90" fill="none" stroke="#36c5a8" stroke-width="3" stroke-opacity="0.55"/>
+        <text x="46" y="296" fill="#36c5a8" font-family="monospace" font-size="10" opacity="0.7">Green R.</text>
+        <!-- Pacific Highway corridor -->
+        <line x1="250" y1="70" x2="250" y2="330" stroke="#9aa7b4" stroke-width="2" stroke-dasharray="2 5" stroke-opacity="0.6"/>
+        <text x="258" y="86" fill="#9aa7b4" font-family="monospace" font-size="10" opacity="0.8">Pacific Hwy S</text>
+        <!-- predicted anchor zone -->
+        <circle cx="250" cy="210" r="78" fill="url(#anchor)"/>
+        <circle cx="250" cy="210" r="62" fill="none" stroke="#e0625e" stroke-width="1.2" stroke-dasharray="4 4" stroke-opacity="0.8"/>
+        <path d="M250 188v44M228 210h44" stroke="#e0625e" stroke-width="1.2" stroke-opacity="0.9"/>
+        <text x="250" y="300" fill="#e0625e" font-family="monospace" font-size="10" text-anchor="middle" opacity="0.9">predicted anchor</text>
+        <!-- dump-site dots (clustered) -->
+        <g fill="#e3b341" filter="url(#glow)">
+          <circle cx="232" cy="176" r="4"/><circle cx="244" cy="196" r="4"/><circle cx="258" cy="186" r="4"/><circle cx="266" cy="206" r="4"/>
+          <circle cx="240" cy="222" r="4"/><circle cx="276" cy="172" r="4"/>
+          <circle cx="200" cy="132" r="3.4" fill-opacity="0.8"/><circle cx="312" cy="252" r="3.4" fill-opacity="0.8"/>
+          <circle cx="180" cy="276" r="3.4" fill-opacity="0.8"/><circle cx="300" cy="120" r="3.4" fill-opacity="0.8"/>
+        </g>
+        <!-- data lines crossing to pipeline -->
+        <g stroke="#4aa8ff" stroke-width="1" stroke-opacity="0.35">
+          <path d="M276 172 C 420 150, 520 130, 690 120" fill="none"/>
+          <path d="M266 206 C 430 230, 540 240, 690 250" fill="none"/>
+          <path d="M244 196 C 440 190, 560 185, 690 185" fill="none"/>
+        </g>
+        <!-- divider label -->
+        <text x="540" y="356" fill="#9aa7b4" font-family="monospace" font-size="11" text-anchor="middle" opacity="0.7">un-queryable paper  ──▶  one searchable platform</text>
+        <!-- RIGHT: the pipeline nodes -->
+        <g font-family="monospace" font-size="10.5" text-anchor="middle">
+          <g transform="translate(720,120)"><rect x="-46" y="-22" width="92" height="44" rx="8" fill="#161b22" stroke="#36c5a8"/><text x="0" y="-3" fill="#36c5a8">INGEST</text><text x="0" y="12" fill="#9aa7b4" font-size="9">Data Factory</text></g>
+          <g transform="translate(720,185)"><rect x="-46" y="-22" width="92" height="44" rx="8" fill="#161b22" stroke="#4aa8ff"/><text x="0" y="-3" fill="#4aa8ff">STORE</text><text x="0" y="12" fill="#9aa7b4" font-size="9">Data Lake</text></g>
+          <g transform="translate(720,250)"><rect x="-46" y="-22" width="92" height="44" rx="8" fill="#161b22" stroke="#4aa8ff"/><text x="0" y="-3" fill="#4aa8ff">ANALYZE</text><text x="0" y="12" fill="#9aa7b4" font-size="9">Synapse</text></g>
+          <g transform="translate(900,185)"><rect x="-52" y="-30" width="104" height="60" rx="10" fill="#1c2330" stroke="#e3b341" stroke-width="1.5"/><text x="0" y="-8" fill="#e3b341">ACT</text><text x="0" y="7" fill="#e6edf3" font-size="9">Power BI · Maps</text><text x="0" y="20" fill="#e6edf3" font-size="9">AI Search</text></g>
+        </g>
+        <g stroke="#4aa8ff" stroke-width="1.4" stroke-opacity="0.5" fill="none" marker-end="url(#ar)">
+          <path d="M766 120 C 820 135, 800 175, 850 182"/>
+          <path d="M766 185 H 846"/>
+          <path d="M766 250 C 820 235, 800 200, 850 192"/>
+        </g>
+        <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#4aa8ff" fill-opacity="0.7"/></marker></defs>
+        <text x="900" y="120" fill="#e3b341" font-family="monospace" font-size="11" text-anchor="middle">RANK 1 ▸ a name</text>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#thesis">Thesis</a>
+    <a href="#exammap">Exam Map</a>
+    <a href="#gap">The Data Gap</a>
+    <a href="#evidence">Evidence Dossiers</a>
+    <a href="#arch">Architecture</a>
+    <a href="#ref">Service Reference</a>
+    <a href="#analytics">Analytics Ladder</a>
+    <a href="#roles">Data Roles</a>
+    <a href="#demo">Query Demo</a>
+    <a href="#timeline">Timeline</a>
+    <a href="#honest">Caveats</a>
+  </div>
+</nav>
+
+<!-- THESIS -->
+<section id="thesis">
+  <div class="wrap">
+    <h2><span class="num">01</span>The thesis</h2>
+    <p class="sub">The Green River investigation did not fail for lack of data. It failed because the data was analog, siloed across jurisdictions, and effectively un-searchable. Ridgway was a name in a box of index cards that no one could connect to the other boxes.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">49+</div><div class="l">confirmed victims</div></div>
+      <div class="stat"><div class="n">~19</div><div class="l">years at large (1982–2001)</div></div>
+      <div class="stat"><div class="n">$10M+</div><div class="l">spent by the task force</div></div>
+      <div class="stat"><div class="n">6,000</div><div class="l">names left unchecked</div></div>
+    </div>
+    <p style="margin-top:26px">In 1984 the task force bought a <b>$200,000 VAX minicomputer</b> and spent two years feeding it more than a million records. It was the best technology money could buy, and it still couldn't keep up: roughly 1,300 suspects investigated, ~6,000 more names waiting, each check taking "anywhere from an hour to six months." Detectives covered the walls with maps, pins, and red string and worked 14-hour days canvassing motels along the SeaTac strip. Ridgway sat inside that haystack the entire time.</p>
+    <div class="callout warn">
+      <span class="tag">The core failure</span>
+      The evidence to identify Ridgway was collected in <b>1983–1987</b>. The technology to read it caught up in <b>2001</b>. Everything here is about collapsing that 14-year gap — not by inventing evidence, but by making the evidence the investigators <em>already had</em> instantly ingested, joined, searchable, and pattern-aware.
+    </div>
+
+    <div class="figure">
+      <svg viewBox="0 0 1000 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar chart of the investigation backlog and per-name check time">
+        <text x="0" y="26" fill="#e6edf3" font-family="-apple-system,sans-serif" font-size="16" font-weight="700">The backlog that hid him</text>
+        <text x="0" y="46" fill="#9aa7b4" font-family="monospace" font-size="11">King County Green River Task Force, mid-1980s</text>
+        <g font-family="monospace" font-size="12">
+          <text x="0" y="92" fill="#9aa7b4">Tips / names in the system</text>
+          <rect x="0" y="100" width="720" height="26" rx="4" fill="#1c2330" stroke="#2a3340"/>
+          <rect x="0" y="100" width="720" height="26" rx="4" fill="#4aa8ff" fill-opacity="0.28"/>
+          <text x="730" y="118" fill="#e6edf3" font-weight="700">10,000+</text>
+          <text x="0" y="150" fill="#9aa7b4">Suspects actually investigated</text>
+          <rect x="0" y="158" width="94" height="26" rx="4" fill="#36c5a8"/>
+          <text x="104" y="176" fill="#36c5a8" font-weight="700">~1,300</text>
+          <text x="0" y="208" fill="#9aa7b4">Names still waiting to be checked</text>
+          <rect x="0" y="216" width="432" height="26" rx="4" fill="#e0625e" fill-opacity="0.85"/>
+          <text x="442" y="234" fill="#e0625e" font-weight="700">~6,000  ◀ Ridgway was in here</text>
+        </g>
+        <g transform="translate(770,150)" font-family="monospace">
+          <rect x="0" y="-58" width="230" height="150" rx="10" fill="#161b22" stroke="#2a3340"/>
+          <text x="16" y="-34" fill="#9aa7b4" font-size="10.5">TIME TO CHECK ONE NAME</text>
+          <text x="16" y="-6" fill="#e0625e" font-size="13" font-weight="700">1984 VAX</text>
+          <text x="16" y="14" fill="#e6edf3" font-size="12">up to 6 months</text>
+          <line x1="16" y1="28" x2="214" y2="28" stroke="#2a3340"/>
+          <text x="16" y="52" fill="#36c5a8" font-size="13" font-weight="700">Azure / Synapse</text>
+          <text x="16" y="72" fill="#e6edf3" font-size="12">sub-second query</text>
+        </g>
+      </svg>
+      <div class="figcap"><b>Read it like this:</b> the task force could only process a fraction of what it collected. The killer's name sat unread in a backlog of thousands — not missing, just un-queryable.</div>
+    </div>
+  </div>
+</section>
+
+<!-- EXAM MAP -->
+<section id="exammap">
+  <div class="wrap">
+    <h2><span class="num">02</span>How this maps to your exam</h2>
+    <p class="sub">DP-900 is organized into four big domains. This case study is deliberately built to exercise all four. Use the case as the story you hang the vocabulary on — that's how the abstractions stick.</p>
+    <div class="exammap">
+      <div class="e"><div class="d">Core data concepts</div><div class="w"><b>Sections 3–4.</b> Structured vs semi-structured vs unstructured; transactional (OLTP) vs analytical (OLAP); the ingest→store→process→analyze→visualize pipeline; ETL vs ELT.</div></div>
+      <div class="e"><div class="d">Relational data</div><div class="w"><b>Dossier 4.</b> Azure SQL Database, tables, keys, normalization, and why a relational store runs the live case (PaaS vs IaaS included).</div></div>
+      <div class="e"><div class="d">Non-relational data</div><div class="w"><b>Dossiers 1–3.</b> Cosmos DB, document/NoSQL stores, Blob &amp; Data Lake, throughput, flexible schema for the tip flood.</div></div>
+      <div class="e"><div class="d">Analytics &amp; AI</div><div class="w"><b>Dossiers 5–6 + Sections 7–8.</b> Synapse, Databricks/ML, Power BI, the AI services (Document Intelligence, Language, Vision, Search), and the four analytics types.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA GAP -->
+<section id="gap">
+  <div class="wrap">
+    <h2><span class="num">03</span>Then vs. now: the same case, two toolkits</h2>
+    <p class="sub">Every real 1980s bottleneck has a cloud-native answer. This table is the whole project in miniature.</p>
+    <div class="compare">
+      <div class="col then">
+        <h4>● 1982–2001 reality</h4>
+        <ul>
+          <li>Tips on paper forms and index cards; statements typed or handwritten and filed in boxes.</li>
+          <li>King County, Seattle PD, neighboring jurisdictions, and the FBI each kept their own records in their own formats.</li>
+          <li>A single VAX choking on a million records; cross-referencing one name could take up to six months.</li>
+          <li>Geographic analysis done by hand with pins and string on wall maps.</li>
+          <li>Spray-paint trace sat <b>~20 years</b> untested; the saliva/DNA sample sat <b>14 years</b>.</li>
+          <li>Ridgway passed a 1984 polygraph and slid down the priority list.</li>
+        </ul>
+      </div>
+      <div class="col now">
+        <h4>● Azure reconstruction</h4>
+        <ul>
+          <li>Every paper artifact OCR'd and handwriting-recognized into a searchable lake (AI Document Intelligence).</li>
+          <li>One unified analytical store ingesting all jurisdictions on a schedule (Data Factory + Data Lake + Synapse).</li>
+          <li>Sub-second full-text search across every note, statement, and tip (Azure AI Search).</li>
+          <li>Automated dump-site clustering and geographic profiling (Azure Maps + Power BI + ML).</li>
+          <li>An evidence record that flags untested items and auto-reruns matches when methods improve.</li>
+          <li>A suspect risk score built on signals a polygraph can't override (Databricks / Azure ML).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EVIDENCE DOSSIERS -->
+<section id="evidence">
+  <div class="wrap">
+    <h2><span class="num">04</span>Evidence dossiers: how each type is ingested, stored &amp; analyzed</h2>
+    <p class="sub">This is the heart of the project, and the part that matters most for your exam. Each dossier takes one era-appropriate evidence type, tells the real case story attached to it, then walks the full data lifecycle: how it gets ingested, where it's stored and why, how it's analyzed, and the DP-900 concept it teaches. Click to expand.</p>
+    <button class="expand-all" id="expandAll">⊕ Expand all dossiers</button>
+
+    <!-- DOSSIER 1 -->
+    <div class="dossier">
+      <div class="d-head"><span class="d-no">01</span><div class="d-tt"><span class="t">Handwritten field notes &amp; index cards</span><span class="s">Unstructured · the richest, least searchable source</span></div><span class="chev">▶</span></div>
+      <div class="d-body"><div class="d-inner">
+        <div class="row case"><span class="lab">The real case</span><p>On April 30, 1983, Marie Malvar's boyfriend, Robert Woods, watched her climb into a pickup truck on Pacific Highway South. He noticed its patches of primer paint and followed it until he lost it at a light. Days later he spotted the same truck parked at a house — Gary Ridgway's. He brought police the address. A detective scribbled the lead into notes and an index card. Ridgway denied everything, and the card went into a box with thousands of others. The single most valuable lead in the case became a needle in the file room.</p></div>
+        <div class="row"><span class="lab">How it's ingested</span><p>Each card and notebook page is scanned to an image and dropped into the raw zone. <b>Azure AI Document Intelligence</b> runs its handwriting/OCR model over them, extracting both the free text and structured fields (date, location, vehicle, names) into JSON. <b>Azure Data Factory</b> orchestrates this as a scheduled pipeline: detect new scans, call the model, write results downstream.</p><div class="svc-tags"><span class="svc-tag">AI Document Intelligence</span><span class="svc-tag">Data Factory</span><span class="svc-tag">Data Lake Gen2 (raw)</span></div></div>
+        <div class="row"><span class="lab">How it's analyzed</span><p><b>Azure AI Language</b> applies named-entity recognition to pull people, vehicles, and places out of the messy prose. <b>Azure AI Search</b> indexes every transcribed card so a detective can full-text search "primer pickup, Pac Hwy S" and get instant hits — the cross-reference that, in reality, was never made.</p><div class="svc-tags"><span class="svc-tag">AI Language (NER)</span><span class="svc-tag">AI Search</span></div></div>
+        <div class="exampoint"><span class="lab">Exam point</span><p>This is the classic <b>unstructured data</b> example. It also shows an <b>AI workload</b> turning unstructured input into structured output. Remember the order of the analytics pipeline: <b>ingest → store → process → analyze → visualize.</b> Document Intelligence is "process"; it's what makes unstructured data usable.</p></div>
+        <div class="row reveal"><span class="lab">What it reveals</span><p>The Malvar card stops being a dead end. "Ridgway + primer pickup + Pacific Highway South" becomes a joinable record that links to his vehicle registration and to other sightings — surfacing him years before the DNA ever spoke.</p></div>
+        <div class="figure">
+          <svg viewBox="0 0 1000 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A handwritten index card transformed by OCR into structured JSON fields">
+            <!-- left: the card -->
+            <g transform="translate(0,20)">
+              <rect x="0" y="0" width="430" height="200" rx="6" fill="#f4efe2" stroke="#c9bfa6"/>
+              <line x1="0" y1="40" x2="430" y2="40" stroke="#d9b8b8"/>
+              <g stroke="#cfd8e0" stroke-opacity="0.0"/>
+              <g stroke="#bcd0e0"><line x1="0" y1="72" x2="430" y2="72"/><line x1="0" y1="104" x2="430" y2="104"/><line x1="0" y1="136" x2="430" y2="136"/><line x1="0" y1="168" x2="430" y2="168"/></g>
+              <line x1="40" y1="0" x2="40" y2="200" stroke="#d9a3a3"/>
+              <text x="14" y="28" fill="#8a3b3b" font-family="monospace" font-size="13">TIP CARD #4471</text>
+              <text x="52" y="64" fill="#26303a" font-family="'Comic Sans MS',cursive" font-size="15" transform="rotate(-1 52 64)">wht/primer pickup, Pac Hwy S</text>
+              <text x="52" y="96" fill="#26303a" font-family="'Comic Sans MS',cursive" font-size="15" transform="rotate(-1.5 52 96)">followed by R. Woods 4/30/83</text>
+              <text x="52" y="128" fill="#26303a" font-family="'Comic Sans MS',cursive" font-size="15" transform="rotate(0.5 52 128)">truck parked at: G. Ridgway res.</text>
+              <text x="52" y="160" fill="#26303a" font-family="'Comic Sans MS',cursive" font-size="15" transform="rotate(-1 52 160)">subj. denies. — filed</text>
+            </g>
+            <text x="215" y="245" fill="#9aa7b4" font-family="monospace" font-size="11" text-anchor="middle">handwritten · unstructured</text>
+            <!-- arrow -->
+            <g transform="translate(460,120)"><text x="0" y="-6" fill="#4aa8ff" font-family="monospace" font-size="10" text-anchor="middle">AI Document</text><text x="0" y="6" fill="#4aa8ff" font-family="monospace" font-size="10" text-anchor="middle">Intelligence</text><path d="M-30 24 H30" stroke="#4aa8ff" stroke-width="2" marker-end="url(#ar2)"/></g>
+            <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#4aa8ff"/></marker></defs>
+            <!-- right: JSON -->
+            <g transform="translate(540,20)">
+              <rect x="0" y="0" width="460" height="200" rx="6" fill="#0a0e14" stroke="#2a3340"/>
+              <g font-family="monospace" font-size="12.5">
+                <text x="16" y="28" fill="#9aa7b4">{</text>
+                <text x="32" y="50" fill="#4aa8ff">"vehicle"</text><text x="120" y="50" fill="#e6edf3">: </text><text x="134" y="50" fill="#36c5a8">"pickup, white/primer"</text><text x="318" y="50" fill="#e6edf3">,</text>
+                <text x="32" y="72" fill="#4aa8ff">"location"</text><text x="124" y="72" fill="#e6edf3">: </text><text x="138" y="72" fill="#36c5a8">"Pacific Hwy S"</text><text x="282" y="72" fill="#e6edf3">,</text>
+                <text x="32" y="94" fill="#4aa8ff">"witness"</text><text x="116" y="94" fill="#e6edf3">: </text><text x="130" y="94" fill="#36c5a8">"R. Woods"</text><text x="226" y="94" fill="#e6edf3">,</text>
+                <text x="32" y="116" fill="#4aa8ff">"date"</text><text x="84" y="116" fill="#e6edf3">: </text><text x="98" y="116" fill="#36c5a8">"1983-04-30"</text><text x="218" y="116" fill="#e6edf3">,</text>
+                <text x="32" y="138" fill="#4aa8ff">"person"</text><text x="108" y="138" fill="#e6edf3">: </text><text x="122" y="138" fill="#e0625e">"Gary Ridgway"</text><text x="270" y="138" fill="#e6edf3">,</text>
+                <text x="32" y="160" fill="#4aa8ff">"links_to"</text><text x="120" y="160" fill="#e6edf3">: </text><text x="134" y="160" fill="#e3b341">["vehicle_reg","sightings"]</text>
+                <text x="16" y="182" fill="#9aa7b4">}</text>
+              </g>
+            </g>
+            <text x="770" y="245" fill="#9aa7b4" font-family="monospace" font-size="11" text-anchor="middle">structured · joinable · searchable</text>
+          </svg>
+          <div class="figcap"><b>Ingestion in one picture:</b> the single most valuable lead in the case goes from a scribble in a box to a queryable record with a key the rest of the platform can join on.</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- DOSSIER 2 -->
+    <div class="dossier">
+      <div class="d-head"><span class="d-no">02</span><div class="d-tt"><span class="t">Typed witness &amp; victim statements</span><span class="s">Semi-structured · consistent fields, free-text bodies</span></div><span class="chev">▶</span></div>
+      <div class="d-body"><div class="d-inner">
+        <div class="row case"><span class="lab">The real case</span><p>Many of the women who worked the strip told police they had seen the same ordinary-looking man, repeatedly, in a truck. Robert Woods gave a formal statement. Each statement was a typed form with the same header fields (name, date, location) wrapped around a free-text account. Individually, each was just one more piece of paper. Collectively, they were a chorus naming the same person — but no one could hear the chorus because the pages never sat in one queryable place.</p></div>
+        <div class="row"><span class="lab">How it's ingested</span><p>Typed forms run through Document Intelligence's <b>layout model</b>, which understands form structure: it lifts the header fields into clean key-value pairs and keeps the narrative body as text. The result is a JSON document per statement — predictable fields plus a variable body. That's the definition of <b>semi-structured</b> data.</p><div class="svc-tags"><span class="svc-tag">AI Document Intelligence (layout)</span><span class="svc-tag">Data Factory</span></div></div>
+        <div class="row"><span class="lab">How it's stored &amp; analyzed</span><p>The JSON documents land in <b>Azure Cosmos DB</b>, a NoSQL document store that's happy with varying schemas. Analysis uses <b>AI Language</b> for entity + key-phrase extraction and <b>AI Search</b> to query across all statements at once: "every statement mentioning a man in a pickup who 'seemed normal.'"</p><div class="svc-tags"><span class="svc-tag">Cosmos DB (document)</span><span class="svc-tag">AI Language</span><span class="svc-tag">AI Search</span></div></div>
+        <div class="exampoint"><span class="lab">Exam point</span><p><b>Semi-structured data</b> = has some organizational tags/fields but no rigid table schema; JSON is the textbook example. <b>Cosmos DB</b> is Azure's globally distributed NoSQL service for exactly this. Know its model: flexible schema, multiple APIs (NoSQL/Core, MongoDB, Cassandra, Table, Gremlin), low-latency reads/writes.</p></div>
+        <div class="row reveal"><span class="lab">What it reveals</span><p>Frequency. A query across all statements shows the same description recurring — a measurable signal that a manual file review buried. The "ordinary man in the truck" becomes a ranked lead, not an anecdote.</p></div>
+      </div></div>
+    </div>
+
+    <!-- DOSSIER 3 -->
+    <div class="dossier">
+      <div class="d-head"><span class="d-no">03</span><div class="d-tt"><span class="t">Public tip-line sheets (10,000+)</span><span class="s">High-volume intake · the flood that buried the VAX</span></div><span class="chev">▶</span></div>
+      <div class="d-body"><div class="d-inner">
+        <div class="row case"><span class="lab">The real case</span><p>Public attention generated an avalanche of tips. The task force investigated ~1,300 suspects and still had roughly <b>6,000 names waiting</b> to be checked, with each check taking up to six months. The bottleneck wasn't bad tips — Ridgway's name was in there more than once. The bottleneck was throughput: a single minicomputer and a finite number of detectives could not physically enter, dedupe, and cross-check the volume fast enough.</p></div>
+        <div class="row"><span class="lab">How it's ingested</span><p><b>Azure Data Factory</b> runs high-volume batch ingestion: forms scanned, OCR'd, and written straight into the store with no human re-keying. There is no "data entry backlog" because ingestion is automated and elastic.</p><div class="svc-tags"><span class="svc-tag">Data Factory (batch)</span><span class="svc-tag">AI Document Intelligence</span></div></div>
+        <div class="row"><span class="lab">How it's stored &amp; analyzed</span><p><b>Cosmos DB</b> absorbs the write storm — it scales throughput horizontally and doesn't care that every tip has slightly different fields. <b>Azure Databricks</b> then runs Spark jobs for deduplication and <b>entity resolution</b>: collapsing "G. Ridgway," "Gary Ridgeway," and "Gary L. Ridgway" into one entity and counting how many independent tips point to him.</p><div class="svc-tags"><span class="svc-tag">Cosmos DB</span><span class="svc-tag">Databricks (Spark)</span><span class="svc-tag">Synapse</span></div></div>
+        <div class="exampoint"><span class="lab">Exam point</span><p>This is the canonical <b>NoSQL use case</b>: massive, fast, schema-flexible writes. A traditional relational database struggles here; that's <em>why</em> non-relational stores exist. Note the concept of <b>throughput/scale-out</b> (Cosmos provisions capacity in Request Units). Also note: this is <b>ELT</b> (load raw first, transform later in Databricks), not ETL.</p></div>
+        <div class="row reveal"><span class="lab">What it reveals</span><p>Repetition becomes a number. Instead of 6,000 unchecked names, you get a ranked list where Ridgway — named in multiple independent tips — rises near the top automatically, the moment the data lands.</p></div>
+      </div></div>
+    </div>
+
+    <!-- DOSSIER 4 -->
+    <div class="dossier">
+      <div class="d-head"><span class="d-no">04</span><div class="d-tt"><span class="t">Structured records: vehicle, motel &amp; employment</span><span class="s">Relational · DMV plates, check-in logs, time cards</span></div><span class="chev">▶</span></div>
+      <div class="d-body"><div class="d-inner">
+        <div class="row case"><span class="lab">The real case</span><p>Three structured datasets quietly held the case. The DMV had the pickup registered to Ridgway. Motels along the strip kept check-in registries. And Kenworth, the truck plant where Ridgway worked as a spray painter, had time cards — which, it was later noted, showed him absent on days victims disappeared. Each dataset was clean and tabular. None of them was ever joined to the others in time.</p></div>
+        <div class="row"><span class="lab">How it's ingested</span><p>These are already structured, so <b>Data Factory</b> uses simple scheduled copy activities — connect to the source, map columns, load on a cadence. No OCR needed; this is straightforward ETL into tables.</p><div class="svc-tags"><span class="svc-tag">Data Factory (copy activity)</span></div></div>
+        <div class="row"><span class="lab">How it's stored &amp; analyzed</span><p>Landed in <b>Azure SQL Database</b>, a managed relational store. Tables for <code>suspects</code>, <code>vehicles</code>, <code>sightings</code>, and <code>employment</code> are linked by keys. A detective updates the live case here (a transactional/OLTP workload). For the big cross-source question, the data flows to <b>Synapse</b>, which joins employment absences × strip sightings × vehicle type across millions of rows.</p><div class="svc-tags"><span class="svc-tag">Azure SQL Database (OLTP)</span><span class="svc-tag">Synapse (OLAP)</span></div></div>
+        <div class="exampoint"><span class="lab">Exam point</span><p>Pure <b>relational data</b>: fixed schema, rows/columns, <b>primary &amp; foreign keys</b>, normalization. <b>Azure SQL Database is PaaS</b> (Microsoft manages the infrastructure); SQL Server on an Azure VM would be <b>IaaS</b>; SQL Managed Instance is also PaaS. And the key distinction: <b>OLTP</b> (Azure SQL, running the case) vs <b>OLAP</b> (Synapse, analyzing across it). This OLTP/OLAP split is one of the most tested ideas on DP-900.</p></div>
+        <div class="row reveal"><span class="lab">What it reveals</span><p>The join no human ran. A foreign key does what red string couldn't: one analytical query intersecting the three tables puts Ridgway — strip-present, pickup-owning, absent on disappearance dates — at the very top of a very short list.</p></div>
+      </div></div>
+    </div>
+
+    <!-- DOSSIER 5 -->
+    <div class="dossier">
+      <div class="d-head"><span class="d-no">05</span><div class="d-tt"><span class="t">Crime-scene photos &amp; dump-site geography</span><span class="s">Unstructured images + spatial data · the pins and string</span></div><span class="chev">▶</span></div>
+      <div class="d-body"><div class="d-inner">
+        <div class="row case"><span class="lab">The real case</span><p>Ridgway dumped victims in clusters in wooded areas and the Green River so he could find them again — and he returned to the sites. The task force consulted the imprisoned Ted Bundy, who predicted exactly this revisitation behavior and advised staking out fresh graves. The geographic pattern was real and meaningful, but it lived as pins on a wall map analyzed by eye. The clusters pointed, roughly, at the corridor where Ridgway lived and worked.</p></div>
+        <div class="row"><span class="lab">How it's ingested</span><p>Two streams. Photographs are unstructured binary files, so they go to <b>Azure Blob Storage</b> (object storage), with <b>Azure AI Vision</b> auto-tagging contents and reading any text. Recovery locations are converted to coordinates by <b>Azure Maps</b> geocoding and stored as structured spatial rows.</p><div class="svc-tags"><span class="svc-tag">Blob Storage (images)</span><span class="svc-tag">AI Vision (tagging/OCR)</span><span class="svc-tag">Azure Maps (geocode)</span></div></div>
+        <div class="row"><span class="lab">How it's analyzed</span><p><b>Power BI</b> renders the dump sites as a live map with heat-mapping and a time slider — the wall of pins, but queryable. <b>Azure ML</b> runs clustering (e.g., k-means) over the coordinates to perform <b>geographic profiling</b>: estimating the offender's likely anchor point (home/work). Bundy's revisitation insight becomes an automated geofence alert when activity recurs near a known site.</p><div class="svc-tags"><span class="svc-tag">Power BI (geo viz)</span><span class="svc-tag">Azure ML (clustering)</span><span class="svc-tag">Azure Maps</span></div></div>
+        <div class="exampoint"><span class="lab">Exam point</span><p><b>Blob Storage</b> = unstructured object storage (know the access tiers: hot/cool/cold/archive). <b>Power BI</b> = the visualization layer (Desktop authors; Service publishes/shares; reports vs dashboards). <b>Clustering</b> is an <b>unsupervised machine learning</b> technique — contrast it with classification, which is supervised. These ML basics are squarely in the analytics/AI domain.</p></div>
+        <div class="row reveal"><span class="lab">What it reveals</span><p>The map stops being decoration and becomes a pointer. Geographic profiling narrows "somewhere in King County" to a specific stretch of Pacific Highway South — the exact corridor of Ridgway's life — and cross-referenced with the Synapse suspect list, the two pointers meet on one man.</p></div>
+        <div class="figure">
+          <svg viewBox="0 0 1000 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Geographic profiling heat map estimating the offender's anchor point from clustered dump sites">
+            <defs>
+              <radialGradient id="heat" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#e0625e" stop-opacity="0.55"/>
+                <stop offset="0.5" stop-color="#e3b341" stop-opacity="0.28"/>
+                <stop offset="1" stop-color="#36c5a8" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect x="0" y="0" width="1000" height="320" rx="10" fill="#0a0e14" stroke="#2a3340"/>
+            <!-- grid -->
+            <g stroke="#36c5a8" stroke-opacity="0.07">
+              <path d="M0 64H1000M0 128H1000M0 192H1000M0 256H1000"/>
+              <path d="M125 0V320M250 0V320M375 0V320M500 0V320M625 0V320M750 0V320M875 0V320"/>
+            </g>
+            <text x="20" y="34" fill="#36c5a8" font-family="monospace" font-size="12" letter-spacing="1">GEOGRAPHIC PROFILE · dump-site clustering ▸ predicted anchor</text>
+            <!-- river -->
+            <path d="M60 280 C 200 240, 160 180, 320 170 S 520 150, 640 70" fill="none" stroke="#36c5a8" stroke-width="3" stroke-opacity="0.4"/>
+            <text x="64" y="276" fill="#36c5a8" font-family="monospace" font-size="10" opacity="0.7">Green River</text>
+            <!-- highway corridor -->
+            <line x1="430" y1="40" x2="430" y2="300" stroke="#9aa7b4" stroke-width="2" stroke-dasharray="2 6" stroke-opacity="0.6"/>
+            <text x="438" y="56" fill="#9aa7b4" font-family="monospace" font-size="10">Pacific Hwy S corridor</text>
+            <!-- heat blob over anchor -->
+            <ellipse cx="430" cy="180" rx="150" ry="120" fill="url(#heat)"/>
+            <!-- dump-site dots, two clusters -->
+            <g fill="#e3b341">
+              <circle cx="405" cy="150" r="5"/><circle cx="440" cy="165" r="5"/><circle cx="420" cy="195" r="5"/><circle cx="455" cy="200" r="5"/><circle cx="392" cy="178" r="5"/><circle cx="468" cy="172" r="5"/>
+              <circle cx="300" cy="250" r="4.4"/><circle cx="330" cy="262" r="4.4"/><circle cx="315" cy="232" r="4.4"/>
+              <circle cx="560" cy="110" r="4" fill-opacity="0.8"/><circle cx="600" cy="92" r="4" fill-opacity="0.8"/>
+            </g>
+            <!-- predicted anchor crosshair -->
+            <circle cx="430" cy="178" r="66" fill="none" stroke="#e0625e" stroke-width="1.4" stroke-dasharray="5 4"/>
+            <path d="M430 150v56M402 178h56" stroke="#e0625e" stroke-width="1.4"/>
+            <circle cx="430" cy="178" r="6" fill="#e0625e"/>
+            <text x="430" y="262" fill="#e0625e" font-family="monospace" font-size="11" text-anchor="middle" font-weight="700">PREDICTED HOME / WORK ZONE</text>
+            <!-- legend -->
+            <g transform="translate(760,90)" font-family="monospace" font-size="11">
+              <rect x="0" y="-26" width="220" height="150" rx="8" fill="#161b22" stroke="#2a3340"/>
+              <circle cx="20" cy="0" r="5" fill="#e3b341"/><text x="36" y="4" fill="#9aa7b4">recovered dump site</text>
+              <circle cx="20" cy="30" r="6" fill="#e0625e"/><text x="36" y="34" fill="#9aa7b4">predicted anchor</text>
+              <rect x="14" y="52" width="12" height="12" fill="url(#heat)"/><text x="36" y="62" fill="#9aa7b4">probability surface</text>
+              <text x="14" y="92" fill="#e3b341">k-means / kernel density</text>
+              <text x="14" y="110" fill="#36c5a8">→ Azure ML + Maps</text>
+            </g>
+          </svg>
+          <div class="figcap"><b>Bundy was right, the math just makes it routine:</b> tight dump-site clusters betray the offender's comfort zone. The model points at the corridor where Ridgway actually lived and worked — turning a wall of pins into a coordinate.</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- DOSSIER 6 -->
+    <div class="dossier">
+      <div class="d-head"><span class="d-no">06</span><div class="d-tt"><span class="t">Forensic &amp; biological evidence</span><span class="s">Chain-of-custody data · the paint trace &amp; the 1987 sample</span></div><span class="chev">▶</span></div>
+      <div class="d-body"><div class="d-inner">
+        <div class="row case"><span class="lab">The real case</span><p>Two pieces of physical evidence damn the timeline. A distinctive <b>spray paint</b> was found on material associated with a victim — and Ridgway was a spray painter at Kenworth — yet the paint went <b>~20 years</b> untested. And in 1987 police collected a <b>saliva sample</b> from Ridgway, but the DNA science of the day couldn't use it. It sat for <b>14 years</b> until STR-PCR matched it in 2001. The evidence didn't change. Only our ability to read it did.</p></div>
+        <div class="row"><span class="lab">How it's ingested &amp; stored</span><p>This is about data <b>governance</b>, not OCR. Every physical item gets a record in <b>Azure SQL Database</b> — an <code>evidence</code> table with chain-of-custody, status, and a "testable-with-current-methods" flag. Lab reports and the raw sample metadata are retained in the <b>Data Lake</b> indefinitely (storage is cheap; never discard raw data).</p><div class="svc-tags"><span class="svc-tag">Azure SQL (evidence register)</span><span class="svc-tag">Data Lake (lab reports)</span></div></div>
+        <div class="row"><span class="lab">How it's analyzed &amp; acted on</span><p>A <b>Data Factory</b> pipeline watches for new capabilities: when a more sensitive method comes online, it automatically re-queues every item flagged "untestable" for re-analysis and alerts the team on a match — instead of relying on someone to remember a sample from 14 years ago. The spray-paint trace, meanwhile, is a structured attribute that joins straight to Ridgway's Kenworth employment record.</p><div class="svc-tags"><span class="svc-tag">Data Factory (trigger/re-run)</span><span class="svc-tag">Synapse (join to employment)</span></div></div>
+        <div class="exampoint"><span class="lab">Exam point</span><p>Two themes: <b>data governance &amp; the value of retaining raw data</b> (you can re-process the lake later as tools improve), and the full <b>data analytics lifecycle</b> closing the loop into action. Honest scope note for accuracy: the actual DNA chemistry happens in a <em>lab</em>, not in Azure — the platform's job is to <em>track, flag, join, and auto-trigger</em>, not to invent forensics.</p></div>
+        <div class="row reveal"><span class="lab">What it reveals</span><p>The paint trace links a victim directly to Ridgway's occupation years early. And the parked sample never gets forgotten — the moment STR-PCR exists, the match fires on its own. In the rewritten timeline, though, the circumstantial platform has already put him under surveillance long before.</p></div>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="arch">
+  <div class="wrap">
+    <h2><span class="num">05</span>The reference architecture</h2>
+    <p class="sub">All six dossiers feed one pipeline — the exact shape DP-900 teaches. Data flows left to right, from messy reality into decisions.</p>
+    <div class="pipe">
+      <div class="layer"><div class="ph">Ingest</div><span class="svc">Data Factory<small>orchestration / ETL · ELT</small></span><span class="svc">AI Doc Intelligence<small>OCR + handwriting</small></span></div>
+      <div class="layer"><div class="ph">Store (raw)</div><span class="svc">Data Lake Gen2<small>all paper, scanned</small></span><span class="svc">Blob Storage<small>photos / maps</small></span></div>
+      <div class="layer"><div class="ph">Operate</div><span class="svc">Azure SQL DB<small>case mgmt (OLTP)</small></span><span class="svc">Cosmos DB<small>tips/statements (NoSQL)</small></span></div>
+      <div class="layer"><div class="ph">Analyze</div><span class="svc">Synapse<small>warehouse (OLAP)</small></span><span class="svc">Databricks / ML<small>link + scoring</small></span></div>
+      <div class="layer"><div class="ph">Act</div><span class="svc">Power BI + Maps<small>geo-profiling</small></span><span class="svc">AI Search<small>ask anything</small></span></div>
+    </div>
+    <div class="callout dp">
+      <span class="tag">DP-900 concept · the analytics workload</span>
+      Memorize this flow: <b>ingest → store → process → analyze → visualize</b>. And keep the two worlds straight: <b>transactional (OLTP)</b> systems run the day-to-day case; <b>analytical (OLAP)</b> systems find patterns across all of it. Mixing those up is the single most common DP-900 trap.
+    </div>
+  </div>
+</section>
+
+<!-- SERVICE REFERENCE -->
+<section id="ref">
+  <div class="wrap">
+    <h2><span class="num">06</span>Service quick-reference</h2>
+    <p class="sub">A flash-card style summary of every service in the stack: what it is, and its one-line job on the case. Good for last-minute review.</p>
+    <div class="svc-grid">
+      <div class="qcard"><div class="h"><div class="ic">🏭</div><div class="nm">Azure Data Factory<small>Ingestion &amp; orchestration</small></div></div><p>Managed, serverless ETL/ELT. Scheduled pipelines copy &amp; transform data from many sources into one place.</p><div class="pa">CASE JOB · <b>Dissolves the agency silos</b> — nightly ingest of tips, registries, DMV, VAX export.</div></div>
+      <div class="qcard"><div class="h"><div class="ic">🗄️</div><div class="nm">Data Lake Storage Gen2<small>Raw landing zone</small></div></div><p>Bottomless, cheap storage for any data shape. Built on Blob with a hierarchical namespace. Schema-on-read.</p><div class="pa">CASE JOB · <b>Nothing ages out</b> — paper scans &amp; raw samples stay queryable forever.</div></div>
+      <div class="qcard"><div class="h"><div class="ic">📑</div><div class="nm">AI Document Intelligence<small>OCR + handwriting</small></div></div><p>Reads printed text, handwriting, forms &amp; tables; outputs structured data. (Formerly Form Recognizer.)</p><div class="pa">CASE JOB · <b>Paper → database</b> — turns 10,000 handwritten tips into searchable records.</div></div>
+      <div class="qcard"><div class="h"><div class="ic">⚡</div><div class="nm">Azure Cosmos DB<small>NoSQL / non-relational</small></div></div><p>Globally distributed, multi-model NoSQL. Flexible schema, low latency, scale-out throughput (RUs).</p><div class="pa">CASE JOB · <b>Absorbs the tip flood</b> — no entry backlog, ever.</div></div>
+      <div class="qcard"><div class="h"><div class="ic">🗃️</div><div class="nm">Azure SQL Database<small>Relational · PaaS · OLTP</small></div></div><p>Managed relational DB. Tables, keys, constraints. PaaS (vs SQL-on-VM = IaaS).</p><div class="pa">CASE JOB · <b>Runs the live case</b> — suspects, vehicles, evidence, joined by keys.</div></div>
+      <div class="qcard"><div class="h"><div class="ic">🏢</div><div class="nm">Azure Synapse Analytics<small>Data warehouse · OLAP</small></div></div><p>Big-data analytics: SQL pools (dedicated/serverless) + Spark + pipelines for cross-cutting queries.</p><div class="pa">CASE JOB · <b>Collapses the haystack</b> — joins absences × sightings × vehicle in one query.</div></div>
+      <div class="qcard"><div class="h"><div class="ic">🔬</div><div class="nm">Azure Databricks / Azure ML<small>Data science &amp; ML</small></div></div><p>Spark-based processing; build/train/deploy ML models. Clustering (unsupervised) &amp; classification (supervised).</p><div class="pa">CASE JOB · <b>Neutralizes the polygraph</b> — objective risk scoring &amp; entity resolution.</div></div>
+      <div class="qcard"><div class="h"><div class="ic">🔎</div><div class="nm">Azure AI Search<small>Indexing &amp; query</small></div></div><p>Full-text search with relevance ranking, filters, and AI enrichment over your content.</p><div class="pa">CASE JOB · <b>Ask the case anything</b> — instant search across all OCR'd documents.</div></div>
+      <div class="qcard"><div class="h"><div class="ic">🗺️</div><div class="nm">Azure Maps<small>Geospatial services</small></div></div><p>Geocoding, routing, and spatial APIs for location data.</p><div class="pa">CASE JOB · <b>Turns sites into coordinates</b> — feeds clustering &amp; the map.</div></div>
+      <div class="qcard"><div class="h"><div class="ic">📊</div><div class="nm">Power BI<small>Visualization &amp; reporting</small></div></div><p>Authoring in Desktop; sharing in the Service. Reports, dashboards, datasets.</p><div class="pa">CASE JOB · <b>The decision dashboard</b> — heat maps, time sliders, ranked leads.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ANALYTICS LADDER -->
+<section id="analytics">
+  <div class="wrap">
+    <h2><span class="num">07</span>The four types of analytics, on one case</h2>
+    <p class="sub">DP-900 explicitly tests the analytics ladder: descriptive → diagnostic → predictive → prescriptive (each answers a harder question than the last). Here's the whole ladder told through the investigation.</p>
+    <div class="ladder">
+      <div class="rung"><div class="k">Descriptive</div><div class="q">What happened?</div><div class="ex">49 victims, mapped by where and when they were found. The basic dashboard.</div><span class="tool">→ Power BI</span></div>
+      <div class="rung"><div class="k">Diagnostic</div><div class="q">Why did it happen here?</div><div class="ex">Dump sites cluster along one corridor because that's the offender's comfort zone.</div><span class="tool">→ Synapse + Maps</span></div>
+      <div class="rung"><div class="k">Predictive</div><div class="q">What's likely next / who?</div><div class="ex">Geographic profiling estimates the anchor point; the risk model ranks suspects.</div><span class="tool">→ Azure ML</span></div>
+      <div class="rung"><div class="k">Prescriptive</div><div class="q">What should we do?</div><div class="ex">Surveil this suspect; stake out the fresh dump site (Bundy's exact advice).</div><span class="tool">→ ML + alerts</span></div>
+    </div>
+    <div class="callout dp"><span class="tag">DP-900 concept · analytics types</span>Each rung is more valuable and harder than the one below it. Descriptive and diagnostic look <em>backward</em>; predictive and prescriptive look <em>forward</em>. If an exam question asks "which type recommends an action," the answer is <b>prescriptive</b>.</div>
+  </div>
+</section>
+
+<!-- DATA ROLES -->
+<section id="roles">
+  <div class="wrap">
+    <h2><span class="num">08</span>Who builds this — the data roles</h2>
+    <p class="sub">DP-900 also tests the three core data roles. The task force, re-staffed for the cloud, would need all three.</p>
+    <div class="roles">
+      <div class="role"><div class="r">Data Engineer</div><div class="j">Builds and runs the ingestion pipelines: Data Factory, the lake, OCR processing, the Synapse warehouse. The person who makes the paper flow into the platform.</div></div>
+      <div class="role"><div class="r">Database Administrator</div><div class="j">Manages the operational case database (Azure SQL): security, backups, access, performance. Guards the chain-of-custody and who can see what.</div></div>
+      <div class="role"><div class="r">Data Analyst</div><div class="j">Builds the Power BI dashboards and the suspect leaderboard, turning the warehouse into the maps and ranked lists detectives actually act on.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="wrap">
+    <h2><span class="num">09</span>The query that ends it</h2>
+    <p class="sub">The same investigative question, asked of 1984 and of the Azure platform. Flip the toggle — this is the difference between "six months per name" and "one query."</p>
+    <div class="demo">
+      <div class="toggle">
+        <button id="btnThen" class="active" onclick="setMode('then')">● 1984 VAX</button>
+        <button id="btnNow" onclick="setMode('now')">● Azure</button>
+      </div>
+      <div class="q">QUERY ▸ "Every suspect seen on the SeaTac strip, who owns a pickup truck, and was absent from work on a victim's disappearance date."</div>
+      <div id="outThen" class="out show"><div class="scene">
+        <p><b>Response time:</b> weeks to months, if ever.</p>
+        <p>The strip sightings live in detectives' notebooks. The vehicle data is at the DMV. The employment records — if anyone thought to subpoena them — are paper time cards at Kenworth. There is no shared key and no way to join them. A detective would have to pull each set by hand, transcribe them, and eyeball the overlap across thousands of names. In reality, this intersection was never run in time. Ridgway stayed on the list but never at the top.</p>
+        <div class="result-row"><span class="hit">RESULT</span><span>Query not executable with available tooling.</span></div>
+      </div></div>
+      <div id="outNow" class="out"><div class="scene">
+        <p><b>Response time:</b> sub-second (Synapse analytical query joining three ingested sources).</p>
+        <div class="result-row"><span class="hit">RANK 1</span><span class="ridge">Gary L. Ridgway</span> — 11 strip sightings · owns primer-patched pickup · absent on 6 of 9 disappearance dates</div>
+        <div class="result-row"><span class="hit">RANK 2</span><span>[suspect B]</span> — 3 sightings · owns pickup · absent on 1 date</div>
+        <div class="result-row"><span class="hit">RANK 3</span><span>[suspect C]</span> — 2 sightings · owns pickup · 0 schedule matches</div>
+        <p style="margin-top:14px">A short, ranked list. Ridgway isn't hidden among 6,000 unchecked names — he's <b>rank one</b>, with the objective signals a polygraph could never override. <em>(Ranking is illustrative of how the pipeline would prioritize, not a claim about specific case records.)</em></p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline">
+  <div class="wrap">
+    <h2><span class="num">10</span>The rewritten timeline</h2>
+    <p class="sub">Red markers are what actually happened. Teal markers are where the Azure platform changes the outcome.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 1000 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timeline showing the 14-year gap between evidence collected and the killer caught">
+        <text x="0" y="22" fill="#e6edf3" font-family="-apple-system,sans-serif" font-size="15" font-weight="700">The gap the platform closes</text>
+        <!-- axis -->
+        <line x1="40" y1="110" x2="960" y2="110" stroke="#2a3340" stroke-width="2"/>
+        <g font-family="monospace" font-size="10" fill="#9aa7b4" text-anchor="middle">
+          <text x="40" y="132">1982</text><text x="259" y="132">1987</text><text x="872" y="132">2001</text><text x="960" y="132">2003</text>
+        </g>
+        <!-- the dead gap 1987-2001 -->
+        <rect x="259" y="100" width="613" height="20" fill="#e0625e" fill-opacity="0.15"/>
+        <text x="565" y="158" fill="#e0625e" font-family="monospace" font-size="12" text-anchor="middle" font-weight="700">◀ 14 years the evidence sat unreadable ▶</text>
+        <!-- azure catch window 1984-1988 -->
+        <rect x="128" y="100" width="175" height="20" fill="#36c5a8" fill-opacity="0.25"/>
+        <text x="215" y="78" fill="#36c5a8" font-family="monospace" font-size="11" text-anchor="middle">Azure catch window</text>
+        <path d="M215 84 V100" stroke="#36c5a8" stroke-width="1"/>
+        <!-- markers -->
+        <g font-family="monospace" font-size="10" text-anchor="middle">
+          <circle cx="84" cy="110" r="6" fill="#e3b341"/><text x="84" y="58" fill="#e3b341">1983</text><text x="84" y="72" fill="#9aa7b4" font-size="9">Malvar lead</text>
+          <circle cx="259" cy="110" r="6" fill="#e3b341"/><text x="259" y="44" fill="#e3b341">1987</text><text x="259" y="58" fill="#9aa7b4" font-size="9">saliva sample taken</text>
+          <circle cx="872" cy="110" r="7" fill="#e0625e"/><text x="872" y="58" fill="#e0625e">2001</text><text x="872" y="72" fill="#9aa7b4" font-size="9">DNA match · arrest</text>
+        </g>
+      </svg>
+      <div class="figcap"><b>The whole thesis on one axis:</b> the gold markers are evidence already in police hands. The red bar is the wait for technology. The teal band is where a modern platform would have acted on what was already known.</div>
+    </div>
+
+    <div class="tl">
+      <div class="ev bad"><div class="yr">Jul 1982</div><div class="tx"><b>First victims found</b> in the Green River. The task force forms and begins drowning in paper almost immediately.</div></div>
+      <div class="ev"><div class="yr">1982 — Azure</div><div class="tx">Day one: tips, statements, and field notes ingested and OCR'd into the lake. Nothing waits in a box. The geographic dashboard goes live with the first dump sites.</div></div>
+      <div class="ev bad"><div class="yr">Apr 1983</div><div class="tx"><b>Marie Malvar vanishes.</b> Her boyfriend follows the primer-patched truck, finds it at Ridgway's house, and gives police the address. Ridgway denies it; the lead is buried in the volume.</div></div>
+      <div class="ev"><div class="yr">1983 — Azure</div><div class="tx">The Malvar lead auto-joins to strip sightings and Ridgway's vehicle record. The risk model starts ranking him. He does <em>not</em> drop off the list.</div></div>
+      <div class="ev bad"><div class="yr">1984</div><div class="tx">Task force buys a <b>$200K VAX</b>; consults Ted Bundy on the offender profile; Ridgway passes a polygraph and slides down the priorities.</div></div>
+      <div class="ev"><div class="yr">1984 — Azure</div><div class="tx">Geographic profiling points at the Pacific Highway corridor — where Ridgway lives and works. The model ignores the polygraph and holds him at rank one. <b>This is the realistic catch window.</b></div></div>
+      <div class="ev bad"><div class="yr">1987</div><div class="tx">Police collect a <b>saliva sample</b> from Ridgway — then lack the DNA tech to use it. It sits for 14 years.</div></div>
+      <div class="ev bad"><div class="yr">2001</div><div class="tx"><b>STR-PCR DNA</b> finally matches the 1987 sample to early victims. Ridgway is arrested at the Kenworth truck plant on Nov 30.</div></div>
+      <div class="ev"><div class="yr">2001 — Azure</div><div class="tx">In the reconstruction, the evidence record flagged that sample "re-run when method improves," so the match fires automatically — but by then he was caught a decade earlier anyway.</div></div>
+    </div>
+    <div class="callout"><span class="tag">The payoff</span>Ridgway's confirmed killing continued into the late 1990s. A realistic 1984–1988 capture window — driven by queryable data, not new evidence — is the difference your theory is built on. Conservatively, that's <b>a dozen or more lives.</b></div>
+  </div>
+</section>
+
+<!-- CAVEATS -->
+<section id="honest">
+  <div class="wrap">
+    <h2><span class="num">11</span>Where the theory is strong, and where it strains</h2>
+    <p class="sub">A good case study argues its own thesis honestly. Here's the steel-man and the counter.</p>
+    <h3>Strongest ground</h3>
+    <p>The data genuinely existed and genuinely couldn't be cross-referenced. The VAX backlog, the 6,000 unchecked names, the siloed agencies, the Malvar lead delivered to police in 1983, and the 14-year gap between collecting the sample and reading it are all real, and all squarely "data platform" problems. Making analog records queryable and joinable isn't science fiction — it's exactly what the DP-900 stack does.</p>
+    <h3>Where it strains — say it plainly</h3>
+    <p>Three honest limits. First, <b>DNA still needs the lab.</b> Azure makes the 1987 sample findable and flagged, but it can't invent STR-PCR — the conviction-grade match still waits on 2001-era chemistry. The platform's contribution is the <em>circumstantial</em> case that gets him arrested and sampled earlier, plus auto-rerunning the match when the method exists.</p>
+    <p>Second, <b>garbage in, garbage out.</b> If a sighting was never written down, no pipeline recovers it. The model is only as good as what detectives actually recorded.</p>
+    <p>Third, <b>circumstantial ranking isn't proof.</b> Being rank one on a risk model earns a warrant and surveillance, not a verdict. The honest claim isn't "Azure convicts him in 1984" — it's "Azure puts him under the microscope years earlier, which is where the real evidence trail accelerates."</p>
+    <div class="callout dp"><span class="tag">For your DP-900 study</span>If you can explain <em>why</em> each service sits in its pipeline layer — ingest, store, OLTP, OLAP, ML, viz — and articulate OLTP-vs-OLAP, relational-vs-non-relational, structured-vs-unstructured, and the four analytics types using this case, you've internalized a large share of the exam's conceptual weight. The case is the mnemonic.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">
+      <h4>A note on tone and accuracy</h4>
+      This is an educational thought experiment built around a real tragedy in which at least 49 women were murdered. Case facts (the timeline, victim count, the VAX, the Malvar lead, the 1987 sample, the 2001 DNA match, Bundy's consult) are drawn from the public record and cited below. The Azure "catch" scenarios are illustrative reconstructions of how the platform <em>would</em> prioritize information — not claims about specific evidence in the actual case files. The victims were real people; the analytics are hypothetical. All graphics are original illustrations: no victim or news photographs are used, out of respect and to keep the page free of copyrighted material so it can be shared openly.
+    </div>
+    <h4>Sources</h4>
+    <div class="src-list">
+      <a href="https://en.wikipedia.org/wiki/Gary_Ridgway">Gary Ridgway — Wikipedia</a>
+      <a href="https://www.biography.com/crime/gary-ridgway-green-river-killer-timeline">Green River Killer: A Timeline — Biography.com</a>
+      <a href="https://legalclarity.org/how-did-the-green-river-killer-get-caught/">How the Green River Killer Got Caught — LegalClarity</a>
+      <a href="https://www.nbcnews.com/news/us-news/gary-ridgway-green-river-serial-killer-washington-rcna67794">How a crime lab missed evidence — NBC News</a>
+      <a href="https://www.heraldnet.com/2003/12/23/victims-family-had-led-police-to-ridgways-door/">Victim's family had led police to Ridgway's door — HeraldNet</a>
+      <a href="https://kingcounty.gov/en/dept/sheriff/courts-jails-legal-system/sheriff-services/investigations/green-river">Green River homicides investigation — King County</a>
+      <a href="https://time.com/archive/6709921/law-casting-a-net-at-green-river/">Casting a Net at Green River — TIME archive</a>
+      <a href="https://en.wikipedia.org/wiki/Homicide_Investigation_Tracking_System">Homicide Investigation Tracking System (HITS)</a>
+      <a href="https://en.wikipedia.org/wiki/Violent_Criminal_Apprehension_Program">Violent Criminal Apprehension Program (ViCAP)</a>
+      <a href="https://www.oxygen.com/the-dna-of-murder-with-paul-holes/crime-time/green-river-killer-gary-ridgway-dna-capture">Captured with 20-year-old DNA — Oxygen</a>
+    </div>
+    <p style="margin-top:22px">Project Green River · a DP-900 data-analytics case study · built for Ben Whetstone</p>
+  </div>
+</footer>
+
+<script>
+  // expandable dossiers
+  document.querySelectorAll('.dossier .d-head').forEach(function(h){
+    h.addEventListener('click',function(){ h.parentElement.classList.toggle('open'); });
+  });
+  // open the first dossier by default
+  var firstD=document.querySelector('.dossier'); if(firstD) firstD.classList.add('open');
+  // expand/collapse all
+  var allOpen=false;
+  document.getElementById('expandAll').addEventListener('click',function(){
+    allOpen=!allOpen;
+    document.querySelectorAll('.dossier').forEach(function(d){ d.classList.toggle('open',allOpen); });
+    this.textContent = allOpen ? '⊖ Collapse all dossiers' : '⊕ Expand all dossiers';
+  });
+  // then/now demo toggle
+  function setMode(m){
+    var t=m==='then';
+    document.getElementById('btnThen').classList.toggle('active',t);
+    document.getElementById('btnNow').classList.toggle('active',!t);
+    document.getElementById('outThen').classList.toggle('show',t);
+    document.getElementById('outNow').classList.toggle('show',!t);
+  }
+</script>
+</body>
+</html>
